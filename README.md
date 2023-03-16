@@ -18,3 +18,11 @@
     * `helm dependency build Charts/redis-cluster`
     * `helm install Charts/redis-cluster -f Values/env/redis-cluster.yaml -n <namespace>` - this install redis
     * `helm template Charts/redisinsight -f Values/env/redisinsight.yaml` -n `<namespace>` -  this install redisinsight
+* Operational Plan :
+
+  * metrics for redis-cluster can be collected with prometheus integration
+  * further the redisinsight deployed as GUI can be used to access the metrics for redis-cluster.
+* Disaster Recovery :
+
+  * redis-cluster should be run in Multi-AZ which makes it highty available the redis is setup as redis-cluster mode which means failure of 1 or more master won't bring down the complete cluster
+  * redisinsight can be run with multi AZ with PodAnnotations set to run across AZ bringing in HA.
