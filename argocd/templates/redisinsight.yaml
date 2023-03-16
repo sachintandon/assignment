@@ -1,0 +1,41 @@
+{{- if .Values.redisinsightApp.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.redisinsightApp.name }}
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "-70"
+spec:
+  destination:
+    server: {{ .Values.server }}
+    namespace: {{ .Values.redisinsightApp.namespace }}
+  project: {{ .Values.project }}
+  source:
+    path: {{ .Values.redisinsightApp.path }}
+    repoURL: {{ .Values.redisinsightApp.repoURL }}
+    targetRevision: {{ .Values.redisinsightApp.targetRevision }}
+    helm:
+      {{- if .Values.redisinsightApp.skipCrds }}
+      skipCrds: true
+      {{- end }}
+      valueFiles:
+      - {{ .Values.redisinsightApp.helmValuesFiles }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+{{- end }}

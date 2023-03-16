@@ -1,0 +1,90 @@
+redis-cluster:
+  enabled: true
+  fullnameOverride: "redis-redis-cluster"
+
+  global:
+    imageRegistry: "index.docker.io"
+    imagePullSecrets:
+      - regcred
+
+  cluster:
+    nodes: 6
+    replicas: 1
+
+  persistence:
+    size: "10Gi"
+    storageClass: gp2
+
+  image:
+    registry: docker.io
+    repository: bitnami/redis-cluster
+    tag: 7.0.8-debian-11-r0
+    pullSecrets: []
+
+  tls:
+    enabled: false
+    certificatesSecret: redis-server-tls
+    certFilename: tls.crt
+    certKeyFilename: tls.key
+    certCAFilename: ca.crt
+
+  password: "password"
+
+  metrics:
+    enabled: true
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    serviceMonitor:
+      enabled: true
+    extraArgs:
+      skip-tls-verification: true
+
+  sysctlImage:
+    enabled: true
+    mountHostSys: true
+    command:
+      - /bin/sh
+      - -c
+      - |-
+        sysctl -w vm.max_map_count=262144
+
+  redis:
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 1
+        memory: 1Gi
+    # affinity:
+    #   nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #           - key: eks.amazonaws.com/nodegroup
+    #             operator: In
+    #             values:
+    #               - Redis
+    #   podAntiAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       - labelSelector:
+    #           matchExpressions:
+    #             - key: app.kubernetes.io/name
+    #               operator: In
+    #               values:
+    #                 - redis-cluster
+    #         topologyKey: "kubernetes.io/hostname"
+    # tolerations:
+    # - key: "redis"
+    #   operator: "Equal"
+    #   value: "true"
+    #   effect: "NoSchedule"
+    # - key: "redis"
+    #   operator: "Equal"
+    #   value: "true"
+    #   effect: "NoExecute"

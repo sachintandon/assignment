@@ -1,0 +1,43 @@
+{{- if .Values.redisApp }}
+{{- if .Values.redisApp.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.redisApp.name }}
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "-70"
+spec:
+  destination:
+    server: {{ .Values.server }}
+    namespace: {{ .Values.redisApp.namespace }}
+  project: {{ .Values.project }}
+  source:
+    path: {{ .Values.redisApp.path }}
+    repoURL: {{ .Values.redisApp.repoURL }}
+    targetRevision: {{ .Values.redisApp.targetRevision }}
+    helm:
+      {{- if .Values.redisApp.skipCrds }}
+      skipCrds: true
+      {{- end }}
+      valueFiles:
+      - {{ .Values.redisApp.helmValuesFiles }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+{{- end }}
+{{- end }}

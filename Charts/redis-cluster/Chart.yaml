@@ -1,0 +1,14 @@
+apiVersion: v2
+name: redis-cluster
+description: Redis-cluster helm chart for Nexla
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+  - name: redis-cluster
+    repository: https://charts.bitnami.com/bitnami
+    version: 8.3.5
+    # https://github.com/bitnami/charts/blob/main/bitnami/redis-cluster/Chart.yaml
+    condition: redis-cluster.enabled
